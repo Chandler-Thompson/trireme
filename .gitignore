@@ -1,0 +1,11 @@
+# Byte-compiled Python
+__pycache__/
+*.py[cod]
+
+# Conformance run output — regenerated on every run, compared, then discarded
+conformance/out/
+
+# Sortie ledgers and session transcripts. Real flight records; keep them
+# somewhere deliberate, not in the repository by accident.
+example/ledgers/
+ledgers/

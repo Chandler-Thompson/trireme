@@ -1,0 +1,72 @@
+# Fleet configuration (layer 2d). ALL counts and caps live here — doctrine law
+# says config, never constants. Values below are v0 starting points; the
+# profiler earns every change (cite the evidence in CHANGELOG.md).
+
+[retries]
+# Rejection ladder (CONTRACTS/REJECTION.md): retries before hard stop to Producer.
+max_worker_retries = 1
+
+[budgets]
+# Defaults stamped onto tasks at posting; Producer may tighten, never remove.
+# Blowouts charge the Producer (CONTRACTS/DECOMPOSITION.md).
+#
+# COUNTER SEMANTICS (defined with enforcement, 2026-07-13): the token cap
+# counts fresh input + output tokens (`tokens_in_fresh + tokens_out` on
+# model.call), cumulative across ALL seat sessions charged to the task —
+# worker, verifier, producer-CLARIFY, retries included. Cache reads are
+# excluded: raw tokens_in on a healthy Sortie 1/2 task was 1.5M–3.8M (each
+# internal turn re-reads the cached context), while fresh+out was 62k–259k.
+# Fresh+out is the counter that measures what the original 100k meant —
+# context the task actually consumed.
+#
+# 300k = evidence-backed task-cumulative equivalent of the 100k "dumb zone"
+# context threshold (Principal, PR #1 redline, 2026-07-11). The 100k number
+# was a PER-CONTEXT judgment; a task's lifecycle spans 2–4 sessions (worker +
+# verifier, ×2 on retry), so healthy MERGED tasks measured 66k–157k and
+# retry-laden ones up to 259k (Sortie 1 + 2 session envelopes, 16 tasks).
+# 100k task-cumulative would have capped 5 of 7 healthy real tasks; 300k
+# clears the worst healthy retry case with ~15% headroom while still
+# tripping fast on a runaway. The per-context intuition itself is unchanged.
+default_task_budget_tokens = 300_000
+# Per-SESSION cap (Principal, PR #4 redline, 2026-07-13): every single seat
+# session stays under the dumb-zone threshold — a session that needs more
+# context than this is wasted tokens, regardless of the task-cumulative
+# budget. Same counter (fresh+out), single-session scope, fleet-level (not
+# stamped per task). Evidence: all 50 Sortie 1+2 sessions measured under it
+# (max 105k, a retry-laden synthetic), so it trips only on genuine bloat.
+default_session_budget_tokens = 150_000
+# Wall default untouched: observed task wall (all seats) 107–641s vs 3600s.
+# Enforcement is hard — remaining wall budget becomes the seat subprocess
+# timeout, so hung sessions die at the cap (also bounding within-session
+# token runaways, since the token cap is only checkable at session
+# boundaries in the degraded harness).
+default_task_budget_wall_s = 3_600
+
+[sortie]
+# No max_open_tasks (removed in redline round 1): exclusive file-scope is
+# enforced by the board at posting time and branch isolation is base
+# infrastructure, so open-task count self-limits. Reintroduce only with
+# profiler evidence — the failure mode to watch is stale posted tasks holding
+# file locks while main moves under them (shows up in m03 as producer-charged
+# merge_conflict / suite_failed_post_rebase climbing).
+#
+# max_concurrent_workers is NOT about file collisions (file-scope already
+# prevents those). It caps: (1) spend rate — the blast radius of a bad
+# decomposition or doctrine hole is proportional to live workers; (2) provider
+# rate limits — parallel workers share API quotas, and throttling poisons
+# telemetry (m09/m10) upstream of any real signal; (3) merge-queue churn —
+# merges serialize, and every merge forces the other open branches to rebase,
+# so completion parallelism buys rework (m04 tension); (4) attribution clarity
+# early on — with 2 workers, correlated failures are diagnosable. Raise it as
+# profiler evidence earns it, like every other cap.
+max_concurrent_workers = 2
+
+[reconciliation]
+# a03 provider-usage daylight threshold before 3b raises FLASH + quarantine.
+# The audit view reports raw deltas; this threshold is applied by machinery.
+tolerance_pct = 2.0
+
+[red_team]
+# Doctrine red-team sortie cadence (Q11f-iii): once per phase, or after a major
+# amendment cluster (threshold below, in amendments since last exercise).
+amendment_cluster_threshold = 5

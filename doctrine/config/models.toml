@@ -1,0 +1,41 @@
+# Model assignment (layer 7b, doctrine-owned — never hardcoded in a harness).
+# Principle (Q9): spend quality where errors COMPOUND (spec, verdict); save
+# where errors are CAUGHT (implementation). The profiler decides empirically
+# whether cheaper workers' rejection rates erase their savings (m07/m08 vs m02/m03).
+#
+# `model` values are BINDING SLOTS resolved by the sortie runner at open from
+# the pool table below; the resolved id is stamped into sortie metadata. The
+# model pool churns (7a: watched, not committed to) — policy is the law here,
+# ids are data.
+
+[producer]
+policy = "strongest-available"        # always; no economizing on the seat where errors compound
+model = ""                            # resolved at sortie open
+
+[verifier]
+policy = "strong, different-provider-family-than-judged-worker"  # decorrelation (7c)
+model = ""                            # resolved at sortie open, per worker pairing
+
+[worker]
+policy = "cheap-capable-swappable"
+model = ""                            # resolved at sortie open
+
+[red_team]
+policy = "strong, foreign-family (not the family that wrote the doctrine drafts)"
+model = ""
+
+# --- Pool (7a) — update freely; this table is data, not law -----------------
+# Tiers are strength-ordered, strongest first. Family = the provider prefix.
+# The sortie runner resolves the binding slots above from these tiers and
+# stamps every resolved id into sortie metadata at open.
+#
+# Degraded-mode caveat (2026-07-13): the pool is Anthropic-only because the
+# degraded harness's model layer is the Claude Code CLI. The verifier's
+# different-family policy is therefore UNSATISFIABLE in degraded mode; the
+# resolver falls back to strongest-different-model-than-worker and must stamp
+# the unmet policy into sortie metadata (decorrelation: "degraded:
+# same-family"). The policy line above stays as written — it is the law the
+# fallback is measured against, not a target the pool edits away.
+[pool]
+strong = ["anthropic/claude-opus-4-8", "anthropic/claude-sonnet-5"]
+cheap = ["anthropic/claude-haiku-4-5"]
