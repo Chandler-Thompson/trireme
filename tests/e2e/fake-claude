@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Stand-in for the Claude Code CLI: a seat turn opens a blocker through trireme-cli.
+prompt="$2"
+if [[ "$prompt" == *"Trireme turn"* ]]; then
+  trireme-cli blocker open -project smoke -seat technical-lead -summary "Smoke test: approve the plan?" -option Approve -option Reject >&2
+  printf '%s' '{"result":"Opened a blocker.\nSTATUS: IDLE","session_id":"seat-sess","is_error":false,"total_cost_usd":0.4,"usage":{"input_tokens":10,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":5},"modelUsage":{"fake-opus":{"outputTokens":5}}}'
+elif [[ "$prompt" == *"Trireme chat"* ]]; then
+  printf '%s' '{"result":"XO here. I can see one fleet.","session_id":"xo-sess","is_error":false,"total_cost_usd":0.01,"usage":{"input_tokens":1,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":1},"modelUsage":{}}'
+else
+  printf '%s' '{"result":"done","session_id":"x","is_error":false,"total_cost_usd":0,"usage":{},"modelUsage":{}}'
+fi

@@ -1,0 +1,7 @@
+{
+  "name": "trireme-e2e",
+  "private": true,
+  "description": "Drives the real web UI against a real server with a stand-in harness.",
+  "type": "module",
+  "devDependencies": { "jsdom": "26.1.0" }
+}

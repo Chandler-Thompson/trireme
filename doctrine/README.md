@@ -1,55 +1,78 @@
-# Trireme Doctrine
+# Trireme Default Doctrine
 
-The law. **The rule binds; the reasoning is recorded separately.** Every amendment in
-`CHANGELOG.md` carries the evidence that earned it, so if a rule here looks arbitrary,
-the changelog entry that introduced it says what measurement forced it. The rule still
-binds until amended.
+The default doctrine that a Trireme application ships with. A doctrine is the written
+rule set a fleet works under: who the seats are, how work moves, how it is reviewed,
+what it may spend, and what the code must look like.
+
+**This repo is the default, not the only doctrine.** A Trireme instance holds any number
+of doctrines as its own data: this default unmodified, a version with listed deviations,
+or a full replacement. Changing the doctrine inside an instance never changes this
+default. A change to this default is a change to Trireme itself and arrives by reviewed
+PR, with the reason in `CHANGELOG.md`.
 
 ## Standing invariants
 
-1. **Harness-independent.** Any harness implementing the four contracts (agent loop,
-   tools, board/doctrine clients, telemetry emitter) runs this doctrine — including
-   degraded mode on plain headless CLI sessions. The harness is an optimization, not
-   a dependency.
-2. **Pinned per sortie.** Every sortie pins one doctrine commit hash at open; the hash
-   is stamped into every event-log entry. Mid-sortie doctrine changes do not exist.
-3. **Main is always green.** Red main = FLASH, fleet stops.
-4. **No point-to-point agent communication.** All interaction is mediated through
-   shared state: task board (5a), event log (5b), git (5c). No fourth channel.
-5. **All counts and caps are config, never constants.** If a number matters, it lives
-   in `config/`.
-6. **Machinery-only telemetry emission.** No agent self-reporting, ever.
+1. **Harness-agnostic seats.** Every seat runs under any harness that implements the
+   adapter interface in `modules/seats/`. No rule here may depend on one vendor's tool,
+   model or syntax.
+2. **One fleet per project.** A fleet is the running staff of one project. There are no
+   sorties. Work is organized into milestones and releases.
+3. **Shared state only.** Seats never message each other directly. Everything goes
+   through the task board, the journal and the project repo, so nothing important is
+   said where it cannot be found later. Questions between seats are consults
+   (`modules/communication/`).
+4. **`main` and `develop` are always green.**
+5. **The PRD states intent; the code states the current state.** Every other document
+   defers to one of those two.
+6. **Counts and limits are settings, never constants.** If a number matters, it lives in
+   `config/` and the project can change it.
+7. **Spend is measured by machinery.** Token and cost figures come from the harness
+   adapter, never from a seat's own account of itself.
+8. **Human-readable and agent-readable are different things.** Wherever the user reads
+   something, the seat writes a plain-language version alongside the version written
+   for agents.
 
 ## Layout
 
-| Path | Layer | Contents |
-|---|---|---|
-| `ROLES/` | 2a Roster | Role cards — seats, not sailors. Command, Producer, Worker, Verifier. |
-| `CONTRACTS/` | 2b Contracts | Decomposition, rejection ladder, merge gates, event envelope, telemetry conformance suite. |
-| `COMMS.md` | 2c Comms | Message types, header format, precedence, channels. |
-| `config/` | 2d Assignment | Model assignment policy, retries, budgets, caps. |
-| `CHANGELOG.md` | 2e Changelog | Amendments **with the evidence that earned them**. `[yardstick]` flag when measures change. |
-| `profiler/views.sql` | 2b (executable) | The metric views (m01–m13) + audit views. Bookkeeping law. |
-| `RULINGS/` | 2e (case law) | One-paragraph rulings filed at sortie close for every escalation; recurring rulings harden into amendments. |
+| Path | Contents |
+|---|---|
+| `roles/` | One card per seat: mission, what it owns, what it may write, what it maintains, what it never does. |
+| `modules/` | The doctrine itself, split into modules. Each one can be inherited, adjusted with listed deviations, or replaced, per project. |
+| `config/` | Default settings: seats, models, limits. |
+| `CONTEXT.md` | The glossary. Terms are defined once, there. |
+| `CHANGELOG.md` | Every change to this default, with the reason that earned it. |
 
-## The learning loop
+## Modules
 
-Profiler evidence → ruling → precedent → `CHANGELOG.md` amendment → next sortie pins
-new doctrine → profiler measures the delta. Loud gaps (law silent) escalate by
-construction: CLARIFY / FLASH / human touch are all profiler-counted. Silent gaps
-(Goodhart) are defended by metrics-in-tension, cross-family verification, and the
-periodic doctrine red-team sortie (Command-ordered; XO seat).
+| Module | Governs |
+|---|---|
+| `modules/version-control/` | Branching (Git-Flow), merge gates, test builds, hotfixes. Kept separate so it can be swapped wholesale. |
+| `modules/staffing/` | Which seats a project has, how seats are requested and retired. |
+| `modules/seats/` | Long-lived seat sessions, compaction, task logs, the harness adapter. |
+| `modules/communication/` | The board, consults, directives, the blockers queue. |
+| `modules/review/` | Who approves what before code moves. |
+| `modules/budgets/` | The project cap, spend tracking, usage-window pauses. |
+| `modules/documentation/` | Where project docs live, the PRD, the architecture doc, ADRs, per-seat docs. |
+| `modules/standards/` | The default coding standards: full and prototype profiles, language sections, the new-language procedure. |
+| `modules/new-project/` | What starting a project asks for and what it sets up. |
+| `modules/journal/` | The event record every other module writes to. |
+
+## How a project uses a doctrine
+
+A project names one doctrine and records its version. For each module it either
+inherits the doctrine's module as-is, inherits it with a list of deviations, or replaces
+it with a different module. Deviations are listed in the project's settings, each with a
+reason. The rule in a module that the project has not deviated from binds.
+
+## Every project is different
+
+This is the ideal. A project may need a unique approach, and the module system exists so
+it can take one openly. The goal stays fixed: every actor, agent or human, on the same
+page and moving in the same direction.
 
 ## Version
 
-**Doctrine v0 — LAW as of 2026-07-12.** Codified 2026-07-09 from an architecture
-review of 2026-07-04 (Q1–Q11 locked), drafted by the XO seat, redlined by the
-Principal on PR #1 (nine items, all resolved), merged to main.
-
-Every sortie pins one doctrine commit hash at open and stamps it into every event.
-Amendments arrive by reviewed PR with the evidence that earned them (`CHANGELOG.md`).
-
-The commit hashes named in `CHANGELOG.md` are from the private repository this
-doctrine was developed in. They are kept because the changelog entries cite them as
-evidence; they do not resolve in this repository. Pin against this repository's own
-history instead.
+**Doctrine v1, draft.** Replaces doctrine v0 (the stateless producer/worker/verifier
+fleet, law 2026-07-12 to this draft). The decisions behind v1 were made in three grills
+on 2026-10-23: doctrine v1 (Q1-Q59), default coding standards (N1-N21) and the new
+project process (P1-P7). (AIGenerated)

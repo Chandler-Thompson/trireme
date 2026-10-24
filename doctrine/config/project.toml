@@ -1,0 +1,34 @@
+# Default project settings. Every value is a starting point that a project can change in
+# its own settings, versioned with who changed it, when and why. Doctrine prose never
+# restates these numbers; it names the key.
+
+[seats]
+# A seat's session autocompacts here and keeps going. A soft working number from use,
+# not a measured line.
+compact_at_tokens = 200_000
+# How many of a seat's most recent task-log entries it reloads on restart.
+log_entries_on_restart = 5
+
+[staffing]
+# false: every new seat and every retirement needs the user's acceptance.
+at_will = false
+max_instances_per_seat = 1
+# Seats checked by default on the new-project form.
+default_seats = ["technical-producer", "technical-lead", "qa-engineer"]
+
+[review]
+# Fails on the same work before the Technical Lead is pulled in.
+fails_before_lead = 2
+
+[budgets]
+# The project cap, in API-equivalent dollars, for the life of the project.
+# Set on the new-project form. 0 means not yet set; a fleet will not start without one.
+project_cap_usd = 0
+
+[standards]
+profile = "full"
+coverage_target_pct = 100
+
+[performance]
+# How much worse a declared hot path's benchmark may get before DevOps raises a blocker.
+regression_threshold_pct = 10

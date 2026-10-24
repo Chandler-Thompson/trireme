@@ -1,37 +1,69 @@
-# Trireme Fleet
+# Glossary
 
-The orchestration contracts for a Trireme fleet: how a sortie decomposes work, how seats
-take and verify it, and how failures are attributed. This file is the fleet's glossary and
-nothing else — no specs, no implementation notes. The contracts themselves live in `CONTRACTS/`.
+The fleet's vocabulary. Terms are defined here once and used the same way everywhere.
+Only terms that have been ruled on appear.
 
-This is the one copy of the vocabulary. Any harness, tool or report that speaks about the
-fleet uses these words with these meanings.
+**Project**:
+One body of work with its own repo, PRD, settings and fleet.
 
-Created lazily and still partial. Only terms that have actually been ruled on appear below.
+**Fleet**:
+The running staff of one project. One project, one fleet. A fleet can be running,
+paused, stopped or archived.
+_Avoid_: sortie (retired in v1; milestones and releases do that job now).
 
-## Language
+**Seat**:
+A role a project can staff, defined by a card in `roles/`. Filled by one long-lived
+session under some harness and model.
+_Avoid_: sailor, worker, agent (when you mean the role).
+
+**Engineer seat**:
+Any seat with "Engineer" in its title. These approve the architecture doc.
+
+**XO**:
+The user's second in command across all projects, living in the application's chat. A
+pluggable seat.
+
+**Harness**:
+The program that runs a seat's session and talks to its model. Reached only through an
+adapter.
+
+**Consult**:
+A question from one seat (or the XO) to the seat that owns the answer, asked and answered
+as an item on the board.
+_Avoid_: message, DM, ping.
+
+**Directive**:
+A command, directive or information from the user, carried by the XO to a project's
+Technical Lead and Technical Producer.
+
+**Blocker**:
+A decision only the user can make. Lives in the blockers queue.
+
+**Task log**:
+A seat's append-only record of task starts, completions and compactions, each written in
+an agent version and a plain version.
+
+**Handoff**:
+The task-log entry a seat writes before a planned stop, and the first thing it reloads on
+restart.
+
+**Hot path**:
+Code the Technical Lead declares in `docs/performance.md`, where allocation after warm-up
+must be zero or justified.
+
+**Deviation**:
+A listed, reasoned change a project makes to an inherited module. Also used for a feature
+that departs from the PRD (a **PRD deviation**).
+
+**Profile**:
+A complete set of coding standards: `full`, `prototype`, or one of the user's own.
 
 **Claim**:
-An exclusive take of a task that the board enforces, so a second taker is refused. Gated by the
-four claimability requirements in `CONTRACTS/DECOMPOSITION.md` and emitted as `task.claimed`.
-_Avoid_: dibs, reserve, assign. Never use "claim" for an advisory hold that nothing refuses —
-that is **dibs**, and it belongs to a different system.
+An exclusive take of a ticket that the board enforces, so a second taker is refused.
+_Avoid_: dibs, reserve, assign. Never use "claim" for a hold that nothing refuses; that is
+**dibs**.
 
 **Dibs**:
-Not used here. A declaration of intent that gates nothing and refuses nobody, honoured by
-convention rather than machinery. Listed so the distinction stays visible: if a mechanism in
-this fleet ever stops refusing a second taker, it is dibs and must be renamed.
-_Avoid_: calling it a claim, a soft mutex, or an advisory lock.
-
-**Rejection rung**:
-One of the two steps of the rejection ladder. Rung 1 charges the Worker and retries; rung 2
-charges the Producer and hard-stops.
-_Avoid_: bare "rung". Unqualified, that word means a level on the autonomy ladder, which belongs
-to a different system. Always write "rejection rung" here, even where the surrounding document
-is obviously about rejection.
-
-**Rejection ladder**:
-The failure-attribution escalation in `CONTRACTS/REJECTION.md`: rejection #1 charges the Worker
-and retries, rejection #2 charges the Producer and hard-stops.
-_Avoid_: bare "the ladder". A second, unrelated ladder exists elsewhere in the stack (the
-autonomy ladder, WATCH → DRAFT → ACT → JUDGE), so both are always written qualified.
+Not used here. A declaration of intent that gates nothing and refuses nobody. Listed so
+the distinction stays visible: if a mechanism here stops refusing a second taker, it is
+dibs and must be renamed.

@@ -1,0 +1,30 @@
+{
+  "listen": "127.0.0.1:8740",
+  "data_dir": "/home/you/.local/share/trireme",
+  "body_label": "my-desktop",
+  "claude_binary": "claude",
+  "doctrine_dir": "/path/to/trireme/doctrine",
+  "doctrine_version": "v1",
+  "token_file": "",
+  "xo": {
+    "agent": "",
+    "model": "opus",
+    "workdir": "",
+    "allowed_tools": ["Bash(trireme-cli:*)", "Read"],
+    "permission_mode": ""
+  },
+  "projects": [
+    {
+      "id": "my-project",
+      "name": "My Project",
+      "repo": "/path/to/my-project",
+      "cap_usd": 25,
+      "compact_at": 200000,
+      "seats": [
+        { "id": "technical-producer", "model": "opus", "allowed_tools": ["Bash(trireme-cli:*)", "Bash(git:*)", "Read", "Grep", "Glob"] },
+        { "id": "technical-lead", "model": "opus", "allowed_tools": ["Bash(trireme-cli:*)", "Bash(git:*)", "Read", "Grep", "Glob"] },
+        { "id": "qa-engineer", "model": "opus", "allowed_tools": ["Bash(trireme-cli:*)", "Bash(git:*)", "Bash(go test:*)", "Read", "Grep", "Glob"] }
+      ]
+    }
+  ]
+}

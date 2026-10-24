@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trireme</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Trireme</h1>
+  <span id="conn" class="muted">connecting…</span>
+</header>
+<main>
+  <section id="chat" aria-label="XO chat">
+    <h2>XO</h2>
+    <div id="lines" role="log" aria-live="polite"></div>
+    <form id="say">
+      <textarea id="text" rows="3" placeholder="Ask the XO, or give it a directive for a project" required></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </section>
+  <aside>
+    <section aria-label="Blockers">
+      <h2>Blockers <span id="blocker-count" class="badge"></span></h2>
+      <div id="blockers"></div>
+    </section>
+    <section aria-label="Fleets">
+      <h2>Fleets</h2>
+      <div id="fleets"></div>
+    </section>
+    <section aria-label="Journal">
+      <h2>Journal</h2>
+      <ol id="journal"></ol>
+    </section>
+  </aside>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
