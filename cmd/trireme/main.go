@@ -125,7 +125,7 @@ func buildSlots(cfg config.Instance, deps seat.Deps) ([]*runner.Slot, error) {
 				return nil, err
 			}
 			st := seat.New(seat.Config{ProjectID: p.ID, Seat: s.ID, DoctrineVersion: cfg.DoctrineVersion,
-				Card: card + protocol, CompactAt: p.CompactAt,
+				Card: card + protocol(cfg.DoctrineDir), CompactAt: p.CompactAt,
 				Spec: harness.SessionSpec{WorkDir: p.Repo, Model: s.Model, AllowedTools: s.AllowedTools,
 					PermissionMode: s.PermissionMode}}, deps)
 			slots = append(slots, &runner.Slot{ProjectID: p.ID, SeatID: s.ID, Seat: st})
@@ -135,7 +135,7 @@ func buildSlots(cfg config.Instance, deps seat.Deps) ([]*runner.Slot, error) {
 }
 
 func buildXO(cfg config.Instance, deps seat.Deps) (*seat.Seat, error) {
-	card, err := cfg.Card("xo")
+	card, err := cfg.XOCard()
 	if err != nil {
 		return nil, err
 	}
@@ -146,19 +146,26 @@ func buildXO(cfg config.Instance, deps seat.Deps) (*seat.Seat, error) {
 		workdir = cfg.DataDir
 	}
 	return seat.New(seat.Config{ProjectID: "instance", Seat: "xo", DoctrineVersion: cfg.DoctrineVersion,
-		Card: card + protocol, Spec: harness.SessionSpec{WorkDir: workdir, Model: cfg.XO.Model, Agent: cfg.XO.Agent,
+		Card: card + protocol(cfg.DoctrineDir), Spec: harness.SessionSpec{WorkDir: workdir, Model: cfg.XO.Model, Agent: cfg.XO.Agent,
 			AllowedTools: cfg.XO.AllowedTools, PermissionMode: cfg.XO.PermissionMode}}, deps), nil
 }
 
-// protocol is appended to every card so the seat knows how to reach the shared state.
-const protocol = `
+// protocol is appended to every briefing so the seat knows where the doctrine is and how
+// to reach the shared state.
+func protocol(doctrineDir string) string {
+	return fmt.Sprintf(`
 
 ## Working inside Trireme
 
+The doctrine this fleet runs under is at %s. When your briefing names a module, a
+setting or the glossary, read it there.
+
 You reach the shared state only through the trireme-cli command, which is already
 configured: "trireme-cli journal", "trireme-cli blockers", "trireme-cli blocker open",
-"trireme-cli consult", "trireme-cli directive" and "trireme-cli fleets". Run
-"trireme-cli help" for the flags. Never message another seat any other way.`
+"trireme-cli consult", "trireme-cli answer", "trireme-cli directive" and
+"trireme-cli fleets". Run "trireme-cli help" for the flags. Never message another seat
+any other way.`, doctrineDir)
+}
 
 func setChildEnv(cfg config.Instance, token string) {
 	// Seats and the XO inherit these, so trireme-cli inside them reaches this server.

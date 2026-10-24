@@ -1,7 +1,7 @@
 # Version Control
 
 - **Module:** version-control
-- **Version:** 1
+- **Version:** 2
 - **Governs:** branches, merges into them, test builds and hotfixes.
 - **Depends on:** review (the gates name its approvals), journal.
 - **Settings:** none yet.
@@ -19,6 +19,7 @@ with a different branching model.
 | `task/<ticket>` | until merged | its feature branch | its feature branch |
 | `release/<version>` | until merged | `develop` | `main` and back into `develop` |
 | `hotfix/<name>` | until merged | `main` | `main` and `develop` |
+| `docs/<seat>` | until merged | `develop` | `develop` |
 
 `main` is what the PRD rule calls the main build. **`main` and `develop` are always
 green.** A red `main` or `develop` stops all merges into it until it is green again, and
@@ -46,6 +47,13 @@ raises a blocker.
 A feature that departs from the PRD may merge to `develop` with a **PRD deviation** flag,
 so the implementers can prove their solution works before the user rules on it. A flagged
 feature cannot enter a release without the user's approval.
+
+### `docs/<seat>` → `develop`
+
+A seat's own folder under `docs/`, for changes that belong to no ticket. The mechanical
+gate passes, every changed path is inside `docs/<seat>/` (or a shared document the seat
+co-owns), and the Technical Lead merges it. No QA pass, because nothing in it is product
+behavior.
 
 ### `develop` → `release/<version>`
 
