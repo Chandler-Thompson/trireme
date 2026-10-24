@@ -12,9 +12,14 @@ paused, stopped or archived.
 _Avoid_: sortie (retired in v1; milestones and releases do that job now).
 
 **Seat**:
-A role a project can staff, defined by a card in `roles/`. Filled by one long-lived
+A role a project can staff, defined by its role file. Filled by one long-lived
 session under some harness and model.
 _Avoid_: sailor, worker, agent (when you mean the role).
+
+**Role file**:
+A seat's briefing: `roles/<seat>/AGENTS.md`, given to the seat after `roles/AGENTS.md`,
+which every seat shares. Plain Markdown in the `AGENTS.md` form, so any harness can use it.
+_Avoid_: card (the v1 draft's short cards were replaced by role files).
 
 **Engineer seat**:
 Any seat with "Engineer" in its title. These approve the architecture doc.

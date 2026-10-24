@@ -1,7 +1,7 @@
 # Documentation
 
 - **Module:** documentation
-- **Version:** 1
+- **Version:** 2
 - **Governs:** where project documentation lives and who may change what.
 - **Depends on:** communication, journal.
 - **Settings:** none yet.
@@ -20,8 +20,7 @@ docs/
   adr/                   architecture decision records
   performance.md         hot paths and their benchmarks
   standards.md           the project's effective standards (generated, see below)
-  <seat>/                one folder per staffed seat, holding what its card lists
-    log/                 the seat's task log (modules/seats/)
+  <seat>/                one folder per staffed seat, holding what its role file lists
 ```
 
 ## Two sources of truth

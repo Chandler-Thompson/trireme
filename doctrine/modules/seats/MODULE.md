@@ -1,7 +1,7 @@
 # Seats
 
 - **Module:** seats
-- **Version:** 1
+- **Version:** 2
 - **Governs:** how a seat's session runs, how it remembers, and how any harness hosts it.
 - **Depends on:** journal, budgets (usage-window pauses).
 - **Settings:** `seats.compact_at_tokens` (default `200_000`), `seats.log_entries_on_restart`
@@ -16,8 +16,10 @@ Nothing stops a session at that point; the only limits are project-level
 
 ## Task log
 
-Every seat keeps an append-only log at `docs/<seat>/log/` in the project repo. It writes
-an entry:
+Every seat keeps an append-only task log. Its location and entry format are in
+`roles/AGENTS.md`. While seats share one working tree, it lives in the untracked `.board/`
+folder, so it is the same on every branch; it moves to the board when the board
+integration lands. A seat writes an entry:
 
 - **At task start:** what it is about to do, its plan, and what it read to get there.
 - **At task completion:** what changed, what it learned, open threads, and what the next
@@ -35,7 +37,7 @@ actually mattered:
 ## Handoff
 
 Before any planned stop (pause, stop, retirement, harness switch) the seat writes a
-handoff entry. A seat that restarts, planned or not, reloads from its card, its handoff,
+handoff entry. A seat that restarts, planned or not, reloads from its role file, its handoff,
 its last `seats.log_entries_on_restart` log entries, the current task's entries, and the
 recent journal. This is also what makes a seat portable between harnesses.
 
@@ -44,7 +46,7 @@ recent journal. This is also what makes a seat portable between harnesses.
 A seat never depends on one harness. Trireme talks to every harness through one adapter
 interface. An adapter must:
 
-1. Start, resume and stop a seat session with a given card, model and working directory.
+1. Start, resume and stop a seat session with a given role file, model and working directory.
 2. Deliver work to the session and return its output.
 3. Report spend per model call: model, input tokens, output tokens, and cost or
    API-equivalent cost (`modules/budgets/`).
