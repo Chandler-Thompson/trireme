@@ -45,9 +45,12 @@ type Instance struct {
 	DoctrineDir     string `json:"doctrine_dir"`
 	DoctrineVersion string `json:"doctrine_version"`
 	// TokenFile holds the API token. It is required whenever Listen is not loopback.
-	TokenFile string    `json:"token_file"`
-	XO        XO        `json:"xo"`
-	Projects  []Project `json:"projects"`
+	TokenFile string `json:"token_file"`
+	// NotifyCommand, when set, runs once per new blocker with the blocker as JSON on
+	// standard input. It is how an instance plugs in its own notifier.
+	NotifyCommand []string  `json:"notify_command"`
+	XO            XO        `json:"xo"`
+	Projects      []Project `json:"projects"`
 }
 
 // Load reads and validates a settings file.

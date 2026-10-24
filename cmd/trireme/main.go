@@ -27,6 +27,7 @@ import (
 	"github.com/Chandler-Thompson/trireme/internal/harness/claudecode"
 	"github.com/Chandler-Thompson/trireme/internal/inbox"
 	"github.com/Chandler-Thompson/trireme/internal/journal"
+	"github.com/Chandler-Thompson/trireme/internal/notify"
 	"github.com/Chandler-Thompson/trireme/internal/runner"
 	"github.com/Chandler-Thompson/trireme/internal/seat"
 	"github.com/Chandler-Thompson/trireme/internal/store"
@@ -87,8 +88,12 @@ func build(cfg config.Instance, db *sql.DB, log *slog.Logger) (*services, error)
 	}
 	now := time.Now
 	j := journal.New(db, now)
+	var notifier blockers.Notifier
+	if len(cfg.NotifyCommand) > 0 {
+		notifier = notify.Command{Argv: cfg.NotifyCommand, Timeout: 30 * time.Second}
+	}
 	svc := &services{cfg: cfg, journal: j, token: token, fleets: fleet.New(db, j),
-		queue: blockers.New(db, j, nil, now, log), inbox: inbox.New(db, j, now), caps: budget.New(db, j)}
+		queue: blockers.New(db, j, notifier, now, log), inbox: inbox.New(db, j, now), caps: budget.New(db, j)}
 	for _, p := range cfg.Projects {
 		if err := svc.caps.Seed(p.ID, p.CapUSD); err != nil {
 			return nil, err
