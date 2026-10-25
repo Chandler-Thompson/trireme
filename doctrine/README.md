@@ -36,7 +36,7 @@ PR, with the reason in `CHANGELOG.md`.
 
 | Path | Contents |
 |---|---|
-| `roles/` | One card per seat: mission, what it owns, what it may write, what it maintains, what it never does. |
+| `roles/` | One `AGENTS.md` role file per seat, plus `roles/AGENTS.md`, which every seat shares. |
 | `modules/` | The doctrine itself, split into modules. Each one can be inherited, adjusted with listed deviations, or replaced, per project. |
 | `config/` | Default settings: seats, models, limits. |
 | `CONTEXT.md` | The glossary. Terms are defined once, there. |

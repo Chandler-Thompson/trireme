@@ -191,7 +191,7 @@ func TestTurn_ContextPastThreshold_WritesLogEntryThenCompacts(t *testing.T) {
 	if _, err := r.seat.Turn(context.Background(), "go", ""); err != nil {
 		t.Fatal(err)
 	}
-	if len(r.adapter.prompts) != 2 || !strings.Contains(r.adapter.prompts[1], "docs/technical-lead/log/") || r.adapter.compacts != 1 {
+	if len(r.adapter.prompts) != 2 || !strings.Contains(r.adapter.prompts[1], "compaction entry") || r.adapter.compacts != 1 {
 		t.Fatalf("prompts %v compacts %d", r.adapter.prompts, r.adapter.compacts)
 	}
 	if types := r.env.Types(t); types[len(types)-1] != "seat.compacted" {

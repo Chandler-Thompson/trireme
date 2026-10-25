@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Seat is one staffed seat in a project.
@@ -104,11 +105,33 @@ func validate(inst Instance) error {
 	return nil
 }
 
-// Card returns a seat's role card from the doctrine.
+// Card returns a project seat's briefing from the doctrine: the file every seat shares,
+// roles/AGENTS.md, followed by the seat's own roles/<seat>/AGENTS.md.
 func (inst Instance) Card(seatID string) (string, error) {
-	raw, err := os.ReadFile(filepath.Join(inst.DoctrineDir, "roles", seatID+".md"))
+	shared, err := inst.readRole("AGENTS.md")
 	if err != nil {
-		return "", fmt.Errorf("config: role card for %s: %w", seatID, err)
+		return "", err
+	}
+	own, err := inst.readRole(filepath.Join(seatID, "AGENTS.md"))
+	if err != nil {
+		return "", err
+	}
+	return shared + "\n\n" + own, nil
+}
+
+// XOCard returns the XO's briefing. The XO holds no project seat, so it gets its own file
+// only, without the file every project seat shares.
+func (inst Instance) XOCard() (string, error) {
+	return inst.readRole(filepath.Join("xo", "AGENTS.md"))
+}
+
+func (inst Instance) readRole(rel string) (string, error) {
+	if rel == "" || filepath.IsAbs(rel) || strings.Contains(rel, "..") {
+		return "", fmt.Errorf("config: bad role path %q", rel)
+	}
+	raw, err := os.ReadFile(filepath.Join(inst.DoctrineDir, "roles", rel))
+	if err != nil {
+		return "", fmt.Errorf("config: role briefing %s: %w", rel, err)
 	}
 	return string(raw), nil
 }

@@ -5,3 +5,6 @@ node_modules/
 *.db
 *.db-wal
 *.db-shm
+
+# Tickets and task logs while seats share one working tree (doctrine/roles/AGENTS.md)
+/.board/

@@ -46,19 +46,55 @@ func TestLoad_InvalidFiles_ReturnErrors(t *testing.T) {
 	}
 }
 
-func TestCard_ExistingAndMissing_ReadsOrErrors(t *testing.T) {
+func writeRole(t *testing.T, dir, rel, body string) {
+	t.Helper()
+	path := filepath.Join(dir, "roles", rel)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCard_SharedAndSeatFiles_JoinsSharedFirst(t *testing.T) {
 	dir := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(dir, "roles"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "roles", "qa-engineer.md"), []byte("# QA"), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	inst := Instance{DoctrineDir: dir}
-	if card, err := inst.Card("qa-engineer"); err != nil || !strings.HasPrefix(card, "# QA") {
+	writeRole(t, dir, "AGENTS.md", "# Every Seat")
+	writeRole(t, dir, "qa-engineer/AGENTS.md", "# QA")
+	card, err := Instance{DoctrineDir: dir}.Card("qa-engineer")
+	if err != nil || !strings.HasPrefix(card, "# Every Seat") || !strings.HasSuffix(card, "# QA") {
 		t.Fatalf("card %q err %v", card, err)
 	}
+}
+
+func TestCard_MissingSeatOrSharedFile_Errors(t *testing.T) {
+	dir := t.TempDir()
+	writeRole(t, dir, "qa-engineer/AGENTS.md", "# QA")
+	inst := Instance{DoctrineDir: dir}
+	if _, err := inst.Card("qa-engineer"); err == nil {
+		t.Fatal("missing shared file: expected error")
+	}
+	writeRole(t, dir, "AGENTS.md", "# Every Seat")
 	if _, err := inst.Card("nobody"); err == nil {
-		t.Fatal("expected error")
+		t.Fatal("missing seat file: expected error")
+	}
+}
+
+func TestCard_PathEscapingRoles_Errors(t *testing.T) {
+	dir := t.TempDir()
+	writeRole(t, dir, "AGENTS.md", "# Every Seat")
+	writeRole(t, dir, "../outside/AGENTS.md", "# Not a role")
+	if card, err := (Instance{DoctrineDir: dir}).Card("../outside"); err == nil {
+		t.Fatalf("read %q from outside roles/", card)
+	}
+}
+
+func TestXOCard_OwnFileOnly_OmitsSharedFile(t *testing.T) {
+	dir := t.TempDir()
+	writeRole(t, dir, "AGENTS.md", "# Every Seat")
+	writeRole(t, dir, "xo/AGENTS.md", "# XO")
+	card, err := Instance{DoctrineDir: dir}.XOCard()
+	if err != nil || card != "# XO" {
+		t.Fatalf("card %q err %v", card, err)
 	}
 }

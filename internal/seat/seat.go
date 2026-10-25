@@ -139,7 +139,7 @@ func (s *Seat) checkCap() error {
 }
 
 // compactionPrompt asks the seat to write its compaction log entry before it forgets.
-const compactionPrompt = `Your context is about to be compacted. Before that happens, append a compaction entry to your task log under docs/%s/log/: what you are carrying forward, written once for an agent to reload and once as a few plain sentences for the user. Then reply with the single word DONE.`
+const compactionPrompt = `Your context is about to be compacted. Before that happens, append a compaction entry to your task log, where and in the shape your briefing gives: what you are carrying forward, written once for an agent to reload and once as a few plain sentences for the user. Then reply with the single word DONE.`
 
 func (s *Seat) maybeCompact(ctx context.Context, reply harness.Reply, ticket string) {
 	if s.cfg.CompactAt <= 0 || reply.Spend.ContextTokens < s.cfg.CompactAt {
@@ -147,7 +147,7 @@ func (s *Seat) maybeCompact(ctx context.Context, reply harness.Reply, ticket str
 	}
 	spec, _, err := s.spec()
 	if err == nil {
-		_, err = s.d.Adapter.Turn(ctx, spec, fmt.Sprintf(compactionPrompt, s.cfg.Seat))
+		_, err = s.d.Adapter.Turn(ctx, spec, compactionPrompt)
 	}
 	if err == nil {
 		_, err = s.d.Adapter.Compact(ctx, spec)

@@ -14,6 +14,35 @@
 
 ---
 
+## Doctrine v1 (draft) · 2026-10-24 · role files replace role cards
+
+The v1 draft's role cards were 30 to 60 lines each, and Trireme gave a seat only its own
+card: not the rules every seat shares, not the procedures in the modules its card named,
+and not how a turn works. A seat would have had to rediscover all of it on its first
+turn. The user asked for fuller role files, in the cross-harness `AGENTS.md` form.
+
+- **Role files:** each seat's card becomes `roles/<seat>/AGENTS.md`, with its mission,
+  what it owns, what it never does, its procedures written out, its docs, where it
+  escalates, and an example turn. The user stays `roles/user.md`, since no agent fills it.
+- **Shared file:** `roles/AGENTS.md` holds what every project seat shares, moved out of
+  `roles/README.md` and expanded: the shape of a turn, the status line, the task-log entry
+  format, the board's item types with their `trireme-cli` commands, version control, the
+  gate, spend and writing. Trireme gives a seat the shared file, then its own. The XO gets
+  only its own.
+- **`.board/` (interim):** seats share one working tree and switch branches in it, so
+  anything committed exists on one branch only, and same-day task logs written on two
+  branches would conflict. Until the board integration lands, tickets, bug reports, test
+  builds, cost tracking and task logs live in an untracked `.board/` folder that is the
+  same on every branch. The task log leaves `docs/<seat>/log/` (`modules/seats/` v2,
+  `modules/documentation/` v2).
+- **Docs branches:** a seat's changes to its own folder that belong to no ticket go on a
+  `docs/<seat>` branch, merged into `develop` by the Technical Lead on a green gate with
+  no QA pass (`modules/version-control/` v2).
+- **Glossary:** "role file" replaces "card".
+
+**Evidence:** the user's ruling of 2026-10-24 ("AGENTS.md files which are supported by
+many harnesses"), and a reading of Trireme's `config.Card`, which loaded the card alone.
+
 ## Doctrine v1 (draft) · 2026-10-23 · full rewrite `[yardstick]`
 
 Replaces doctrine v0 wholesale. v0 was a stateless fleet (one fresh producer, worker and
