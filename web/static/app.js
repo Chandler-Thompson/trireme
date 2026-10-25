@@ -87,6 +87,8 @@
   async function refreshFleets() {
     const data = await api("GET", "/api/fleets");
     const box = document.getElementById("fleets");
+    // Re-rendering would wipe a cap the user is typing, so wait until they leave the box.
+    if (box.contains(document.activeElement) && document.activeElement.tagName === "INPUT") return;
     const rows = data.fleets.map((f) => fleetView(f, data.seats));
     box.replaceChildren(...(rows.length ? rows : [el("p", { class: "empty" }, "No projects are configured.")]));
   }
@@ -105,7 +107,32 @@
       el("span", { class: "state " + f.state }, f.state.replace("_", " ") + (f.reason ? " (" + f.reason.replace("_", " ") + ")" : "")),
       el("span", { class: "muted" }, "$" + f.spent_usd.toFixed(2) + (f.cap_usd ? " of $" + f.cap_usd.toFixed(2) : "") + " spent"),
       ...(actionsFor[f.state] || []).map((a) => el("button", { class: "secondary", onclick: act(a) }, a)),
+      capView(f),
       el("div", { class: "seats" }, seatText));
+  }
+
+  // capView shows spend against the project cap as a bar, with a box to raise the cap
+  // at any time, not only when a cap blocker asks.
+  function capView(f) {
+    const pct = f.cap_usd ? Math.min(100, (f.spent_usd / f.cap_usd) * 100) : 0;
+    const fill = el("div", { class: "fill" + (pct >= 90 ? " high" : "") });
+    fill.style.width = pct.toFixed(1) + "%";
+    const input = el("input", { type: "number", min: "0", step: "1", placeholder: "New cap in dollars",
+      "aria-label": "New cap for " + f.project_id });
+    const set = async () => {
+      const usd = Number(input.value);
+      if (!(usd > 0)) { alert("Enter the new cap in dollars."); return; }
+      try {
+        await api("POST", "/api/projects/" + encodeURIComponent(f.project_id) + "/cap", { cap_usd: usd });
+        input.value = ""; input.blur(); await refreshFleets();
+      } catch (e) { alert(e.message); }
+    };
+    input.addEventListener("keydown", (ev) => { if (ev.key === "Enter") set(); });
+    return el("div", { class: "cap" },
+      el("div", { class: "bar", title: pct.toFixed(1) + "% of the cap spent" }, fill),
+      el("span", { class: "muted" }, pct.toFixed(0) + "% of cap"),
+      input,
+      el("button", { class: "secondary", onclick: set }, "Set cap"));
   }
 
   async function refreshJournal() {

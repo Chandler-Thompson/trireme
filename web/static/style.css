@@ -52,3 +52,8 @@ aside { display: flex; flex-direction: column; gap: 1rem; min-height: 0; overflo
   main { grid-template-columns: 1fr; height: auto; padding: 1rem 16px; }
   #chat { height: 70vh; }
 }
+.fleet .cap { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; flex-basis: 100%; }
+.fleet .cap .bar { flex: 1 1 8rem; min-width: 6rem; height: .5rem; border-radius: 4px; background: var(--line); overflow: hidden; }
+.fleet .cap .fill { height: 100%; background: var(--accent); }
+.fleet .cap .fill.high { background: var(--warn); }
+.fleet .cap input { width: 10rem; max-width: 100%; }

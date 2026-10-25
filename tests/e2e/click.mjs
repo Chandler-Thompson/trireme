@@ -65,6 +65,18 @@ button("resume").click();
 await until("running again", () => d.querySelector(".fleet .state")?.textContent.startsWith("running"));
 pass("Pause and Resume buttons work");
 
+const capBox = d.querySelector(".fleet .cap input");
+capBox.focus();
+capBox.value = "12";
+await wait(2500);
+if (d.querySelector(".fleet .cap input")?.value !== "12") throw new Error("a refresh wiped the cap being typed");
+[...d.querySelectorAll(".fleet .cap button")].find((b) => b.textContent === "Set cap").click();
+await until("cap set from the card", () => d.querySelector(".fleet .muted")?.textContent.includes("of $12.00"));
+const fill = d.querySelector(".fleet .cap .fill");
+const want = (Number(d.querySelector(".fleet .muted").textContent.match(/\$([\d.]+)/)[1]) / 12) * 100;
+if (Math.abs(parseFloat(fill.style.width) - want) > 0.2) throw new Error(`bar ${fill.style.width}, want ${want.toFixed(1)}%`);
+pass("the fleet card shows spend against the cap and sets a new cap");
+
 const journal = d.querySelectorAll("#journal li").length;
 if (journal < 10) throw new Error("journal feed too short: " + journal);
 pass("journal feed shows events");
