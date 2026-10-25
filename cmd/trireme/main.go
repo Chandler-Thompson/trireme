@@ -146,7 +146,7 @@ func buildXO(cfg config.Instance, deps seat.Deps) (*seat.Seat, error) {
 		workdir = cfg.DataDir
 	}
 	return seat.New(seat.Config{ProjectID: "instance", Seat: "xo", DoctrineVersion: cfg.DoctrineVersion,
-		Card: card + protocol(cfg.DoctrineDir), Spec: harness.SessionSpec{WorkDir: workdir, Model: cfg.XO.Model, Agent: cfg.XO.Agent,
+		Card: card + cfg.ProjectsBrief() + protocol(cfg.DoctrineDir), Spec: harness.SessionSpec{WorkDir: workdir, Model: cfg.XO.Model, Agent: cfg.XO.Agent,
 			AllowedTools: cfg.XO.AllowedTools, PermissionMode: cfg.XO.PermissionMode}}, deps), nil
 }
 

@@ -89,6 +89,22 @@ func TestCard_PathEscapingRoles_Errors(t *testing.T) {
 	}
 }
 
+func TestProjectsBrief_TwoProjects_ListsEachRepo(t *testing.T) {
+	inst := Instance{Projects: []Project{{ID: "a", Name: "Alpha", Repo: "/r/a"}, {ID: "b", Repo: "/r/b"}}}
+	got := inst.ProjectsBrief()
+	for _, want := range []string{`Alpha (id "a"): repo at /r/a`, `b (id "b"): repo at /r/b`} {
+		if !strings.Contains(got, want) {
+			t.Errorf("brief %q lacks %q", got, want)
+		}
+	}
+}
+
+func TestProjectsBrief_NoProjects_SaysSo(t *testing.T) {
+	if got := (Instance{}).ProjectsBrief(); !strings.Contains(got, "no projects") {
+		t.Errorf("brief %q", got)
+	}
+}
+
 func TestXOCard_OwnFileOnly_OmitsSharedFile(t *testing.T) {
 	dir := t.TempDir()
 	writeRole(t, dir, "AGENTS.md", "# Every Seat")

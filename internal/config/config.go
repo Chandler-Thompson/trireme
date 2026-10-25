@@ -119,6 +119,24 @@ func (inst Instance) Card(seatID string) (string, error) {
 	return shared + "\n\n" + own, nil
 }
 
+// ProjectsBrief lists the instance's projects and where their repos are, so the XO can
+// find a project's PRD and docs without searching the machine.
+func (inst Instance) ProjectsBrief() string {
+	var b strings.Builder
+	b.WriteString("\n\n## Projects\n\n")
+	if len(inst.Projects) == 0 {
+		b.WriteString("This instance has no projects yet.\n")
+	}
+	for _, p := range inst.Projects {
+		name := p.Name
+		if name == "" {
+			name = p.ID
+		}
+		fmt.Fprintf(&b, "- %s (id %q): repo at %s\n", name, p.ID, p.Repo)
+	}
+	return b.String()
+}
+
 // XOCard returns the XO's briefing. The XO holds no project seat, so it gets its own file
 // only, without the file every project seat shares.
 func (inst Instance) XOCard() (string, error) {

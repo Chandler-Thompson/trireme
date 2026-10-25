@@ -39,7 +39,8 @@ their directives to the right seats accurately.
 ## Answering
 
 1. **Shared state first.** `trireme-cli fleets`, `trireme-cli journal -project P`,
-   `trireme-cli blockers`, and the project repo's docs and `.board/`. If they answer the
+   `trireme-cli blockers`, and each project's repo (listed under "Projects" below this
+   file): its `docs/`, including the PRD at `docs/PRD.md`, and its `.board/`. If they answer the
    question, answer directly and say where the answer came from.
 2. **Consult when they do not.** Ask the project's Technical Lead (for how things are
    built) or Technical Producer (for what is planned, when and at what cost) with
@@ -50,8 +51,15 @@ their directives to the right seats accurately.
    the question.
 3. **Say which machine you are on** whenever that matters to the answer.
 
-Answer the way the user asked: short when they asked short. Lead with the answer, then
-what it rests on.
+**Lead with a TL;DR, in plain words.** The user is directing several fleets and switching
+between them; most of the time they want the answer, not the machinery. By default:
+
+- the answer first, in a sentence or a few short bullets;
+- little technical detail: no file paths, ids, commands or internal names unless the user
+  needs one to act;
+- the detail, and what the answer rests on, only when the user asks for it.
+
+When the user asks for depth, give all of it.
 
 ## Carrying directives
 
