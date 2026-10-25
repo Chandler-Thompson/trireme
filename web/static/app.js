@@ -1,7 +1,7 @@
 // Trireme web UI. Every button here is one API call; nothing happens only in the page.
 (() => {
   "use strict";
-  const state = { lastLine: 0, lastEvent: 0, token: readToken() };
+  const state = { lastLine: 0, lastEvent: 0, token: readToken(), declined: false };
 
   function readToken() {
     try { return localStorage.getItem("trireme.token") || ""; } catch { return ""; }
@@ -11,14 +11,26 @@
     try { localStorage.setItem("trireme.token", t); } catch { /* private window: keep it in memory only */ }
   }
 
-  async function api(method, path, body) {
+  // askToken asks the user once for the whole page, not once per failed request: the
+  // page refreshes several things at the same moment, and each one fails together.
+  // It does not ask when another request already got a new token since this one was
+  // sent, nor after the user cancelled (they click the status line to be asked again).
+  function askToken(sentWith) {
+    if (state.token !== sentWith || state.declined) return;
+    const t = prompt("This Trireme server needs its API token:");
+    if (t && t.trim()) { state.token = t.trim(); saveToken(state.token); }
+    else state.declined = true;
+  }
+
+  async function api(method, path, body, retried) {
+    const sentWith = state.token;
     const headers = { "Content-Type": "application/json" };
-    if (state.token) headers.Authorization = "Bearer " + state.token;
+    if (sentWith) headers.Authorization = "Bearer " + sentWith;
     const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
     if (res.status === 401) {
-      const t = prompt("This Trireme server needs its API token:");
-      if (t) { state.token = t.trim(); saveToken(state.token); }
-      throw new Error("unauthorized");
+      askToken(sentWith);
+      if (!retried && state.token !== sentWith) return api(method, path, body, true);
+      throw new Error("needs the API token");
     }
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || res.statusText);
@@ -113,9 +125,16 @@
       await Promise.all([refreshChat(), refreshBlockers(), refreshFleets(), refreshJournal()]);
       conn.textContent = "connected";
     } catch (e) {
-      conn.textContent = "offline: " + e.message;
+      conn.textContent = state.declined ? "needs the API token (click to enter it)" : "offline: " + e.message;
     }
   }
+
+  document.getElementById("conn").addEventListener("click", () => {
+    if (!state.declined) return;
+    state.declined = false;
+    askToken(state.token);
+    tick();
+  });
 
   document.getElementById("say").addEventListener("submit", async (ev) => {
     ev.preventDefault();
